@@ -6,5 +6,5 @@ A hacker-style C++ terminal animation that brute-forces and locks text character
 ## [Loopless Ten](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/loopless_Ten.cpp)
 Counts from 1 to 10 using goto instead of loops — a playful nod to old-school C++ style.
 
-## [Popup_Storm](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/Popup_Storm.vbs)
+## [Popup Storm](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/Popup_Storm.vbs)
 An eternal echo of warnings trapped in a loop of existential alertness.

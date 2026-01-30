@@ -1,3 +1,3 @@
 do
-msgbox "Potential Virus Found"
+msgbox "Please acknowledge to continue"
 loop

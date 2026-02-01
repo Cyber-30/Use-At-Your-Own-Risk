@@ -1,7 +1,15 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <ctime>
 #include <chrono>
 #include <thread>
 #include <csignal>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 using namespace std;
 
 bool running = true;
@@ -13,7 +21,25 @@ void cleanup(int) {
     exit(0);
 }
 
+#ifdef _WIN32
+void enableANSI() {
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hOut == INVALID_HANDLE_VALUE) return;
+
+    DWORD dwMode = 0;
+    if (!GetConsoleMode(hOut, &dwMode)) return;
+
+    dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    SetConsoleMode(hOut, dwMode);
+}
+#endif
+
 int main() {
+
+#ifdef _WIN32
+    enableANSI();   // Enable colors on Windows
+#endif
+
     signal(SIGINT, cleanup);
 
     string word;
@@ -26,12 +52,12 @@ int main() {
         "0123456789"
         "!@#$%^&*()-_=+[]{};:'\",.<>?/|\\ ";
 
-    srand(time(nullptr));
+    srand(static_cast<unsigned>(time(nullptr)));
 
     string display(word.size(), ' ');
     int locked = 0;
 
-    // SPEED CONTROL (lower = faster)
+    // SPEED CONTROL
     int frame_delay_ms = 30;
     int lock_delay_ms  = 600;
 
@@ -39,28 +65,24 @@ int main() {
 
     while (running && locked < (int)word.size()) {
 
-        // Check if it's time to lock next character
         auto now = chrono::steady_clock::now();
         if (chrono::duration_cast<chrono::milliseconds>(now - last_lock).count() > lock_delay_ms) {
             display[locked] = word[locked];
-            cout << "\a"; // typing sound
+            cout << "\a"; // beep
             locked++;
             last_lock = now;
         }
 
-        // Generate frame
         for (int i = locked; i < (int)word.size(); i++) {
             display[i] = charset[rand() % charset.size()];
         }
 
-        // 🌈 Rainbow glitch + 🟩 Matrix green
-        int color = 32 + rand() % 6; // green-ish range
+        int color = 32 + rand() % 6;
         cout << "\r\033[" << color << "m" << display << flush;
 
         this_thread::sleep_for(chrono::milliseconds(frame_delay_ms));
     }
 
-    // Final correct word
     cout << "\r\033[32m" << word << "\033[0m\n";
     return 0;
 }

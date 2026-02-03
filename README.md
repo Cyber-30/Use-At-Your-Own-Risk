@@ -14,4 +14,5 @@ A lightweight terminal workload that continuously reflows character rasters to o
 
 ## [Bio Lumina]()
 An interactive 3D particle artwork that uses your webcam and AI hand tracking to control shape, motion, and color in real time.
-[Live Demo](https://vercel.com/cyber-30s-projects/bio_lumina)
+
+[Live Demo](https://biolumina-delta.vercel.app/)

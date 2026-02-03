@@ -11,3 +11,7 @@ An eternal echo of warnings trapped in a loop of existential alertness.
 
 ## [Raster Pulse](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/raster_pulse.c)
 A lightweight terminal workload that continuously reflows character rasters to observe redraw cadence and viewport responsiveness.
+
+## [Bio Lumina]()
+An interactive 3D particle artwork that uses your webcam and AI hand tracking to control shape, motion, and color in real time.
+[Live Demo](https://vercel.com/cyber-30s-projects/bio_lumina)

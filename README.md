@@ -16,3 +16,6 @@ A lightweight terminal workload that continuously reflows character rasters to o
 An interactive 3D particle artwork that uses your webcam and AI hand tracking to control shape, motion, and color in real time.
 
 [Live Demo](https://biolumina-delta.vercel.app/)
+
+## [Spidey](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/Spidey)
+A sleek Spider-Man themed landing page featuring animated Swiper sliders, GSAP transitions, and a modern UI for a dynamic superhero showcase. 🕷️🕸️

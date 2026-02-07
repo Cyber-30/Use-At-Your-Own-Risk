@@ -19,3 +19,6 @@ An interactive 3D particle artwork that uses your webcam and AI hand tracking to
 
 ## [Spidey](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/Spidey)
 A sleek Spider-Man themed landing page featuring animated Swiper sliders, GSAP transitions, and a modern UI for a dynamic superhero showcase. 🕷️🕸️
+
+## [VINYL.EXE](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/VINYL.EXE)
+A browser-based music player disguised as a broken executable.Retro disc visuals, local audio files, and smooth glassmorphic motion.

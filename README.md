@@ -22,3 +22,6 @@ A sleek Spider-Man themed landing page featuring animated Swiper sliders, GSAP t
 
 ## [VINYL.EXE](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/VINYL.EXE)
 A browser-based music player disguised as a broken executable.Retro disc visuals, local audio files, and smooth glassmorphic motion.
+
+## [Entropy Bloom](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/Entropy%20Bloom/entropy_bloom.py)
+Random strings become directories, endlessly and without memory.Stop it manually, or let the filesystem fill with names.

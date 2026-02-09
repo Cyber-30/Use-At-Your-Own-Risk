@@ -25,3 +25,6 @@ A browser-based music player disguised as a broken executable.Retro disc visuals
 
 ## [Entropy Bloom](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/Entropy%20Bloom/entropy_bloom.py)
 Random strings become directories, endlessly and without memory.Stop it manually, or let the filesystem fill with names.
+
+## [Terminal Hallucination](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/TERMINAL.HALLUCINATION/terminal_hallucination.py)
+Plays moving images where images were never meant to exist.Your terminal blinks and calls it cinema.

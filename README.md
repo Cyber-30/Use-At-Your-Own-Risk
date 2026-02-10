@@ -28,3 +28,6 @@ Random strings become directories, endlessly and without memory.Stop it manually
 
 ## [Terminal Hallucination](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/TERMINAL.HALLUCINATION/terminal_hallucination.py)
 Plays moving images where images were never meant to exist.Your terminal blinks and calls it cinema.
+
+## [SHELL.HTML](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/SHELL.HTML/index.html)
+Just a container waiting for instructions.The real content arrives later.

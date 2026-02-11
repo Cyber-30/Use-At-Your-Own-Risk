@@ -31,3 +31,6 @@ Plays moving images where images were never meant to exist.Your terminal blinks 
 
 ## [SHELL.HTML](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/SHELL.HTML/index.html)
 Just a container waiting for instructions.The real content arrives later.
+
+## [Celestial Engine](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/Celestial%20Engine/index.html)
+A real-time particle universe that interprets your hands as physics.Gesture to orbit, pinch to collapse, open your palm to begin again.

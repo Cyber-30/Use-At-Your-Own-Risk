@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hyper-Realistic Celestial Engine</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #020205; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        canvas { display: block; }
+        
+        /* UI & Overlay */
+        #ui-layer {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        #hud-top {
+            position: absolute;
+            top: 30px; left: 30px;
+        }
+        
+        h1 {
+            color: #fff;
+            margin: 0;
+            font-weight: 300;
+            letter-spacing: 6px;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0, 150, 255, 0.8);
+        }
+        
+        .mode-label {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 1rem;
+            color: #00ffcc;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid #00ffcc;
+            padding: 5px 15px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+        }
+
+        #gravity-meter {
+            margin-top: 5px;
+            height: 4px;
+            width: 0px;
+            background: #ff0055;
+            box-shadow: 0 0 10px #ff0055;
+            transition: width 0.1s;
+        }
+
+        /* Cyberpunk Video Container */
+        #cam-container {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            border: 2px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #000;
+            box-shadow: 0 0 20px rgba(0, 150, 255, 0.2);
+        }
+        
+        /* Corner Accents */
+        #cam-container::before, #cam-container::after {
+            content: ''; position: absolute; width: 20px; height: 20px;
+            border-color: #00ffcc; border-style: solid; pointer-events: none; z-index: 12;
+        }
+        #cam-container::before { top: 0; left: 0; border-width: 3px 0 0 3px; }
+        #cam-container::after { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
+
+        video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+            opacity: 0.8;
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ffcc;
+            font-size: 1.2rem;
+            background: rgba(0,0,0,0.8);
+            padding: 2rem;
+            border: 1px solid #00ffcc;
+            z-index: 100;
+        }
+    </style>
+
+    <!-- Three.js & Post Processing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <!-- MediaPipe -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+</head>
+<body>
+
+    <div id="loading" class="loader">INITIALIZING ENGINE...<br>Please Allow Camera.</div>
+
+    <div id="ui-layer">
+        <div id="hud-top">
+            <h1>Celestial Engine</h1>
+            <div id="mode-text" class="mode-label">SYSTEM: ORBITAL MECHANICS</div>
+            <div id="gravity-meter"></div>
+        </div>
+    </div>
+
+    <div id="cam-container">
+        <video id="input_video"></video>
+    </div>
+
+<script>
+    // --- CONFIGURATION ---
+    const PARTICLE_COUNT = 25000;
+    const NEBULA_COUNT = 5000;
+    
+    // --- THREE.JS SETUP ---
+    const scene = new THREE.Scene();
+    // Deep space fog
+    scene.fog = new THREE.FogExp2(0x020205, 0.002);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+    camera.position.set(0, 40, 120);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Optimize for performance
+    renderer.toneMapping = THREE.ReinhardToneMapping;
+    document.body.appendChild(renderer.domElement);
+
+    // --- BLOOM POST-PROCESSING ---
+    const renderScene = new THREE.RenderPass(scene, camera);
+    const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+    bloomPass.threshold = 0.15;
+    bloomPass.strength = 1.8; // High glow for neon look
+    bloomPass.radius = 0.5;
+
+    const composer = new THREE.EffectComposer(renderer);
+    composer.addPass(renderScene);
+    composer.addPass(bloomPass);
+
+    // --- CELESTIAL CONFIGURATION ---
+    const bodies = [
+        // Index 0: Sun (Golden/White, dense)
+        { type: 'sun', radius: 8, particles: 2000, color: new THREE.Color(0xffaa00), orbit: 0, speed: 0 },
+        // Planets
+        { type: 'planet', radius: 1.5, particles: 600, color: new THREE.Color(0xA63744), orbit: 18, speed: 1.5, tilt: 0.1, incline: 0.1 }, // Mercury-ish
+        { type: 'planet', radius: 2.2, particles: 800, color: new THREE.Color(0xE09B48), orbit: 26, speed: 1.2, tilt: 0.2, incline: -0.1 }, // Venus-ish
+        { type: 'planet', radius: 2.5, particles: 900, color: new THREE.Color(0x2E6696), orbit: 36, speed: 1.0, tilt: 0.4, incline: 0.05 }, // Earth-ish
+        { type: 'planet', radius: 1.8, particles: 700, color: new THREE.Color(0xBC5834), orbit: 48, speed: 0.8, tilt: 0.3, incline: 0.2 }, // Mars-ish
+        { type: 'planet', radius: 6.0, particles: 2500, color: new THREE.Color(0xC88B3A), orbit: 70, speed: 0.5, tilt: 0.1, incline: -0.05 }, // Jupiter-ish
+        { type: 'saturn', radius: 5.0, particles: 3000, color: new THREE.Color(0xE3D794), orbit: 95, speed: 0.35, tilt: 0.5, incline: 0.1 }, // Saturn
+        { type: 'planet', radius: 3.5, particles: 1500, color: new THREE.Color(0x4FD0E7), orbit: 120, speed: 0.25, tilt: 0.6, incline: -0.1 }, // Uranus-ish
+        { type: 'planet', radius: 3.4, particles: 1500, color: new THREE.Color(0x3E54E8), orbit: 145, speed: 0.2, tilt: 0.5, incline: 0.05 }  // Neptune-ish
+    ];
+
+    // --- PARTICLE GENERATION ---
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(PARTICLE_COUNT * 3);
+    const colors = new Float32Array(PARTICLE_COUNT * 3);
+    
+    // Custom data storage for physics
+    const physicsData = []; 
+
+    let pIndex = 0;
+
+    bodies.forEach((body, bIndex) => {
+        // Distribute particles for this body
+        const count = body.particles;
+        
+        for(let i=0; i<count; i++) {
+            if(pIndex >= PARTICLE_COUNT) break;
+
+            // 1. Generate Local Sphere Position
+            const u = Math.random();
+            const v = Math.random();
+            const theta = 2 * Math.PI * u;
+            const phi = Math.acos(2 * v - 1);
+            
+            // Add fuzziness to surface
+            let r = body.radius * (0.95 + Math.random() * 0.1); 
+            
+            // Flatten Saturn Ring
+            let lx, ly, lz;
+            
+            if (body.type === 'saturn' && i > count * 0.6) {
+                // Last 40% of particles are ring
+                const ringR = body.radius * (1.5 + Math.random() * 1.5);
+                const ringTheta = Math.random() * Math.PI * 2;
+                lx = ringR * Math.cos(ringTheta);
+                lz = ringR * Math.sin(ringTheta);
+                ly = (Math.random() - 0.5) * 0.2; // Very thin
+            } else {
+                // Sphere
+                lx = r * Math.sin(phi) * Math.cos(theta);
+                ly = r * Math.sin(phi) * Math.sin(theta);
+                lz = r * Math.cos(phi);
+            }
+
+            // Apply Axial Tilt to local coordinates
+            if (body.tilt) {
+                const c = Math.cos(body.tilt);
+                const s = Math.sin(body.tilt);
+                const ty = ly * c - lz * s;
+                const tz = ly * s + lz * c;
+                ly = ty; lz = tz;
+            }
+
+            // 2. Initial Orbit Position
+            const angle = Math.random() * Math.PI * 2; // Random start angle
+            
+            positions[pIndex*3] = lx; 
+            positions[pIndex*3+1] = ly;
+            positions[pIndex*3+2] = lz;
+
+            // Color variation
+            const colorVar = 0.2;
+            colors[pIndex*3] = body.color.r + (Math.random()-0.5)*colorVar;
+            colors[pIndex*3+1] = body.color.g + (Math.random()-0.5)*colorVar;
+            colors[pIndex*3+2] = body.color.b + (Math.random()-0.5)*colorVar;
+
+            // 3. Store Physics Data
+            physicsData.push({
+                bodyIndex: bIndex,
+                localX: lx, localY: ly, localZ: lz,
+                orbitR: body.orbit,
+                orbitSpeed: body.speed * 0.5, // global scale down
+                angle: angle,
+                incline: body.incline || 0,
+                randomSeed: Math.random()
+            });
+
+            pIndex++;
+        }
+    });
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+        size: 0.6,
+        vertexColors: true,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        transparent: true,
+        opacity: 0.9
+    });
+
+    const systemMesh = new THREE.Points(geometry, material);
+    scene.add(systemMesh);
+
+    // --- BACKGROUND STARS ---
+    const bgGeo = new THREE.BufferGeometry();
+    const bgPos = [];
+    for(let i=0; i<NEBULA_COUNT; i++){
+        const r = 400 + Math.random() * 400;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        bgPos.push(r * Math.sin(phi) * Math.cos(theta));
+        bgPos.push(r * Math.sin(phi) * Math.sin(theta));
+        bgPos.push(r * Math.cos(phi));
+    }
+    bgGeo.setAttribute('position', new THREE.Float32BufferAttribute(bgPos, 3));
+    const bgMat = new THREE.PointsMaterial({ color: 0x444455, size: 0.8, transparent: true, opacity: 0.6 });
+    const bgMesh = new THREE.Points(bgGeo, bgMat);
+    scene.add(bgMesh);
+
+
+    // --- CONTROL LOGIC ---
+    const STATE = {
+        mode: 'ORBIT',
+        rotation: { x: 0, y: 0 },
+        pinchForce: 0, // 0 to 1
+        timeScale: 1.0
+    };
+
+    const uiMode = document.getElementById('mode-text');
+    const uiGravity = document.getElementById('gravity-meter');
+
+    function updatePhysics(time, delta) {
+        const posAttr = geometry.attributes.position;
+        const colAttr = geometry.attributes.color;
+        
+        // Hand Rotation (Lerp for smooth camera feel)
+        systemMesh.rotation.y += (STATE.rotation.x - systemMesh.rotation.y) * 0.05;
+        systemMesh.rotation.x += (STATE.rotation.y - systemMesh.rotation.x) * 0.05;
+        
+        // Background rotates slowly oppositely for depth
+        bgMesh.rotation.y = systemMesh.rotation.y * 0.1;
+
+        let lerpStrength = 0.1; // Smoothness factor
+
+        for (let i = 0; i < pIndex; i++) {
+            const data = physicsData[i];
+            const ix = i * 3;
+            
+            // Advance Orbital Angle
+            data.angle += data.orbitSpeed * delta * STATE.timeScale;
+
+            let tx, ty, tz; // Target coordinates
+
+            // --- MODE CALCULATIONS ---
+            
+            if (STATE.mode === 'SINGULARITY') {
+                // Black hole spiral
+                const pullSpeed = 5.0;
+                tx = 0 + Math.cos(data.angle * 10) * (data.orbitR * 0.1);
+                ty = 0;
+                tz = 0 + Math.sin(data.angle * 10) * (data.orbitR * 0.1);
+                
+                // Color Shift to White/Purple
+                colAttr.array[ix] = THREE.MathUtils.lerp(colAttr.array[ix], 1, 0.05);
+                colAttr.array[ix+1] = THREE.MathUtils.lerp(colAttr.array[ix+1], 1, 0.05);
+                colAttr.array[ix+2] = THREE.MathUtils.lerp(colAttr.array[ix+2], 1, 0.05);
+
+            } else if (STATE.mode === 'SUPERNOVA') {
+                // Explosion
+                const blastR = data.orbitR + (time * 50 % 300); // Expanding wave
+                const noise = (data.randomSeed - 0.5);
+                tx = Math.cos(data.angle + noise) * blastR;
+                ty = (data.randomSeed - 0.5) * blastR;
+                tz = Math.sin(data.angle + noise) * blastR;
+                
+            } else if (STATE.mode === 'BIGBANG') {
+                // Violent Outward Repulsion
+                const repulsion = 1000;
+                tx = data.localX * repulsion;
+                ty = data.localY * repulsion;
+                tz = data.localZ * repulsion;
+                lerpStrength = 0.01; // Slower transition
+
+            } else {
+                // NORMAL & WARP (Kepler Orbit)
+                
+                // Calculate Orbital Plane (Inclination)
+                const orbitR = data.orbitR;
+                const ang = data.angle;
+                
+                // Base 2D orbit
+                let ox = Math.cos(ang) * orbitR;
+                let oz = Math.sin(ang) * orbitR;
+                let oy = 0;
+
+                // Apply Inclination (Rotate around Z or X axis)
+                // Simplified: y = sin(angle) * incline * radius
+                oy = Math.sin(ang) * (data.incline * 30); 
+
+                // Add Planet Local Position
+                tx = ox + data.localX;
+                ty = oy + data.localY;
+                tz = oz + data.localZ;
+
+                // --- GRAVITY WELL (PINCH) ---
+                if (STATE.pinchForce > 0 && data.bodyIndex > 0) { // Don't pull Sun
+                    // Vector to center (0,0,0)
+                    tx = THREE.MathUtils.lerp(tx, 0, STATE.pinchForce);
+                    ty = THREE.MathUtils.lerp(ty, 0, STATE.pinchForce);
+                    tz = THREE.MathUtils.lerp(tz, 0, STATE.pinchForce);
+                    
+                    // Add chaotic vibration when strained
+                    tx += (Math.random()-0.5) * STATE.pinchForce * 2;
+                    ty += (Math.random()-0.5) * STATE.pinchForce * 2;
+                    tz += (Math.random()-0.5) * STATE.pinchForce * 2;
+                }
+            }
+
+            // --- APPLY LERP ---
+            posAttr.array[ix] += (tx - posAttr.array[ix]) * lerpStrength;
+            posAttr.array[ix+1] += (ty - posAttr.array[ix+1]) * lerpStrength;
+            posAttr.array[ix+2] += (tz - posAttr.array[ix+2]) * lerpStrength;
+        }
+
+        posAttr.needsUpdate = true;
+        colAttr.needsUpdate = true;
+    }
+
+    // --- ANIMATION LOOP ---
+    const clock = new THREE.Clock();
+
+    function animate() {
+        requestAnimationFrame(animate);
+        const delta = clock.getDelta();
+        const time = clock.getElapsedTime();
+
+        updatePhysics(time, delta);
+        composer.render();
+    }
+    
+    animate();
+
+    // --- HAND TRACKING & LOGIC ---
+    const videoElement = document.getElementById('input_video');
+
+    function onResults(results) {
+        document.getElementById('loading').style.display = 'none';
+
+        if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            const landmarks = results.multiHandLandmarks[0];
+
+            // 1. PINCH (Thumb to Index)
+            const thumb = landmarks[4];
+            const index = landmarks[8];
+            const dist = Math.sqrt(Math.pow(thumb.x - index.x, 2) + Math.pow(thumb.y - index.y, 2));
+            
+            // Normalize pinch: 0.02 (touching) to 0.15 (open)
+            // Inverted: 1.0 = Touching
+            let p = THREE.MathUtils.mapLinear(dist, 0.03, 0.12, 1, 0);
+            STATE.pinchForce = THREE.MathUtils.clamp(p, 0, 1);
+            
+            uiGravity.style.width = (STATE.pinchForce * 100) + '%';
+
+            // 2. FINGER COUNTING
+            let fingers = 0;
+            if (landmarks[8].y < landmarks[6].y) fingers++; // Index
+            if (landmarks[12].y < landmarks[10].y) fingers++; // Middle
+            if (landmarks[16].y < landmarks[14].y) fingers++; // Ring
+            if (landmarks[20].y < landmarks[18].y) fingers++; // Pinky
+            if (landmarks[4].x < landmarks[3].x) fingers++; // Thumb (Right hand approx)
+
+            // 3. SET MODES
+            if (fingers >= 5) {
+                STATE.mode = 'BIGBANG';
+                uiMode.innerText = "SYSTEM: BIG BANG";
+                uiMode.style.borderColor = "#fff";
+                uiMode.style.color = "#fff";
+                STATE.timeScale = 1.0;
+            } else if (fingers === 4) {
+                STATE.mode = 'SINGULARITY';
+                uiMode.innerText = "SYSTEM: SINGULARITY EVENT";
+                uiMode.style.borderColor = "#aa00ff";
+                uiMode.style.color = "#aa00ff";
+                STATE.timeScale = 2.0;
+            } else if (fingers === 3) {
+                STATE.mode = 'SUPERNOVA';
+                uiMode.innerText = "SYSTEM: SUPERNOVA";
+                uiMode.style.borderColor = "#ff0000";
+                uiMode.style.color = "#ff0000";
+                STATE.timeScale = 1.0;
+            } else if (fingers === 2) {
+                STATE.mode = 'ORBIT'; // Keeps orbit logic, but faster
+                STATE.timeScale = 5.0; // Warp Speed
+                uiMode.innerText = "SYSTEM: WARP DRIVE (5x)";
+                uiMode.style.borderColor = "#ffff00";
+                uiMode.style.color = "#ffff00";
+            } else {
+                STATE.mode = 'ORBIT';
+                STATE.timeScale = 1.0;
+                uiMode.innerText = "SYSTEM: ORBITAL MECHANICS";
+                uiMode.style.borderColor = "#00ffcc";
+                uiMode.style.color = "#00ffcc";
+            }
+
+            // 4. ROTATION (Palm Center)
+            const cx = landmarks[9].x;
+            const cy = landmarks[9].y;
+            // Map 0..1 to -Range..Range
+            STATE.rotation.x = (cx - 0.5) * 5; 
+            STATE.rotation.y = (cy - 0.5) * 5;
+
+        } else {
+            // No hand: Idle state
+            STATE.pinchForce = 0;
+            STATE.rotation.x = 0;
+            STATE.rotation.y = 0;
+            uiGravity.style.width = '0px';
+        }
+    }
+
+    const hands = new Hands({locateFile: (file) => {
+        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+    }});
+    
+    hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5
+    });
+    
+    hands.onResults(onResults);
+
+    const cameraUtils = new Camera(videoElement, {
+        onFrame: async () => {
+            await hands.send({image: videoElement});
+        },
+        width: 320,
+        height: 240
+    });
+    cameraUtils.start();
+
+    // Handle Resize
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        composer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+</body>
+</html>

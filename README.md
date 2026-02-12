@@ -34,3 +34,6 @@ Just a container waiting for instructions.The real content arrives later.
 
 ## [Celestial Engine](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/Celestial%20Engine/index.html)
 A real-time particle universe that interprets your hands as physics.Gesture to orbit, pinch to collapse, open your palm to begin again.
+
+## [Recursive Luminal Forestry Protocol](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/Recursive%20Luminal%20Forestry%20Protocol/index.html)
+A procedurally stabilized constellation field that periodically collapses into festive topologies. Snow is not falling — it is being continuously reinitialized.

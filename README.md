@@ -37,3 +37,6 @@ A real-time particle universe that interprets your hands as physics.Gesture to o
 
 ## [Recursive Luminal Forestry Protocol](https://github.com/Cyber-30/Use-At-Your-Own-Risk/blob/main/Recursive%20Luminal%20Forestry%20Protocol/index.html)
 A procedurally stabilized constellation field that periodically collapses into festive topologies. Snow is not falling — it is being continuously reinitialized.
+
+## [Parametric Vascular Distortion Field](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/Parametric%20Vascular%20Distortion%20Field)
+A procedurally animated vector lattice forming a pseudo-biological silhouette through iterative interference.Emotion is not rendered — only motion is.

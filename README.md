@@ -40,3 +40,6 @@ A procedurally stabilized constellation field that periodically collapses into f
 
 ## [Parametric Vascular Distortion Field](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/Parametric%20Vascular%20Distortion%20Field)
 A procedurally animated vector lattice forming a pseudo-biological silhouette through iterative interference.Emotion is not rendered — only motion is.
+
+## [Golden Strand Doctrine](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/Golden%20Strand%20Doctrine)
+A restrained architectural space where texture, tone, and silhouette are strategically redefined. Hair is treated less as material — more as medium.

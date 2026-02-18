@@ -1,0 +1,111 @@
+:root {
+    --gold: #D4AF37;
+    --dark-gold: #996515;
+}
+
+body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #0a0a0a;
+    color: #fff;
+}
+
+h1,
+h2,
+h3,
+.brand {
+    font-family: 'Cinzel', serif;
+}
+
+.gold-text {
+    background: linear-gradient(to right, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.gold-bg {
+    background: linear-gradient(45deg, #BF953F, #FCF6BA, #AA771C);
+}
+
+.gold-border {
+    border-image: linear-gradient(to right, #BF953F, #AA771C) 1;
+}
+
+.hero-overlay {
+    background: linear-gradient(to bottom, rgba(10, 10, 10, 0.4) 0%, rgba(10, 10, 10, 1) 100%);
+}
+
+.glass-nav {
+    background: rgba(10, 10, 10, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #D4AF37;
+    border-radius: 10px;
+}
+
+/* Smooth Vertical Scroll Animation */
+@keyframes scroll {
+    0% {
+        transform: translateY(0);
+    }
+
+    100% {
+        transform: translateY(-50%);
+    }
+}
+
+.scroll-track {
+    animation: scroll 120s linear infinite;
+}
+
+.scroll-track:hover {
+    animation-play-state: paused;
+}
+
+.review-card {
+    background: linear-gradient(145deg, #161616, #0d0d0d);
+    border-left: 2px solid #D4AF37;
+    padding: 2rem;
+    transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+    transform: scale(1.02);
+    border-left-width: 4px;
+}
+
+.gold-toast {
+    background: #111;
+    border: 1px solid #D4AF37;
+    padding: 1rem 2rem;
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    animation: toastSlide 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes toastSlide {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

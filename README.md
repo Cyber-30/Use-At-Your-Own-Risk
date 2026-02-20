@@ -43,3 +43,6 @@ A procedurally animated vector lattice forming a pseudo-biological silhouette th
 
 ## [Golden Strand Doctrine](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/Golden%20Strand%20Doctrine)
 A restrained architectural space where texture, tone, and silhouette are strategically redefined. Hair is treated less as material — more as medium.
+
+## [Market Regime Detection System](https://github.com/Cyber-30/Use-At-Your-Own-Risk/tree/main/Market%20Regime%20Detection%20System)
+Python based tool for detecting and visualizing market regimes - Bull,Bear and Sideways - using historical stock data (e.g. SPY).
